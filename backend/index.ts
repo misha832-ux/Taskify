@@ -5,10 +5,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Sample in-memory data store
+let todos: { id: number; todo: string; isDone: boolean }[] = [] 
+
 // Simple test route
-app.get("/api/test", (req: Request, res: Response) => {
-  res.json({ message: "✅ Backend connected to React successfully!" });
+app.get("/api/todos", (req: Request, res: Response) => {
+  res.json(todos);
 });
+
+app.post("/api/todos", (req: Request, res: Response) => {
+  const newTodo = {
+    id: Date.now(),
+    todo: req.body.todo,
+    isDone: false,
+  };
+  todos.push(newTodo);
+  res.json(newTodo);
+});
+
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
