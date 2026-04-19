@@ -23,6 +23,23 @@ app.post("/api/todos", (req: Request, res: Response) => {
   res.json(newTodo);
 });
 
+app.delete("/api/todos/:id", (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  todos = todos.filter(t => t.id !== id);
+  res.json({ message: "Todo deleted successfully" });
+});
+
+app.put("/api/todos/:id", (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  
+  todos = todos.map(t => {
+    if (t.id === id) {
+      return { ...t, isDone: !t.isDone };
+    }
+    return t;
+  });
+  res.json({ message: "Todo updated successfully" });
+});
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

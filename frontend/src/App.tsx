@@ -84,23 +84,24 @@ const App: React.FC = () => {
     const [todo, setTodo] = useState<string>("")
     const [todos, setTodos] = useState<Todo[]>([])
 
-    const handleAdd = (e: React.FormEvent) => {
+    const handleAdd = async (e: React.FormEvent) => {
        e.preventDefault()
 
        if (todo){
-        fetch("http://localhost:5000/api/todos", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ todo })
-        })
-        .then(res => res.json())
-        .then((newTodo) => {
+        try{
+          const res = await fetch("http://localhost:5000/api/todos", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ todo })
+          })
+          const newTodo = await res.json()
           setTodos([...todos, newTodo])
           setTodo("")
-        })
-        .catch(err => console.log(err))
+        } catch (err) {
+          console.log(err)
+        }
       }
     }
 
