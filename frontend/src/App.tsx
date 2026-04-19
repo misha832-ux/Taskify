@@ -94,16 +94,30 @@ const App: React.FC = () => {
             headers: {
               "Content-Type": "application/json"
             },
-            body: JSON.stringify({ todo })
+            body: JSON.stringify({ todo, deadline: "" }) // You can replace "" with the actual deadline value if you have it in your state
           })
           const newTodo = await res.json()
           setTodos([...todos, newTodo])
           setTodo("")
+          setDeadline("")
         } catch (err) {
           console.log(err)
         }
       }
     }
+    const getRemainingTime = (deadline: string) => {
+    const now = new Date().getTime();
+    const end = new Date(deadline).getTime();
+
+    const diff = end - now;
+
+    if (diff <= 0) return "⛔ Time's up";
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+    return `${hours}h ${minutes}m left`;
+    };
 
     useEffect(() => {
       fetch("http://localhost:5000/api/todos")
