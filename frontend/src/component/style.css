@@ -6,7 +6,8 @@
 }
 
 .input__box {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   border-radius: 50px;
   padding: 20px 30px;
   font-size: 25px;
@@ -16,7 +17,7 @@
 }
 
 .input__box:focus {
-  box-shadow: 0 0 10px 1000px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.3);
   outline: none;
 }
 
@@ -131,5 +132,125 @@
   .todos {
     width: 95%;
     margin-bottom: 10px;
+  }
+}
+/* --- Deadline input --- */
+.input__deadline {
+  flex-shrink: 0;
+  width: 220px;
+  border-radius: 50px;
+  padding: 12px 18px;
+  font-size: 16px;
+  border: none;
+  margin-left: 8px;
+  box-shadow: inset 0 0 5px black;
+}
+
+/* --- Todo list additions --- */
+.todos__empty {
+  color: white;
+  font-size: 18px;
+  text-align: center;
+}
+
+.todos__single {
+  align-items: center;
+  position: relative;
+  gap: 12px;
+}
+
+.todos__single--done .todos__text {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.todos__checkbox {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.todos__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.todos__text {
+  font-size: 26px;
+}
+
+.todos__deadline {
+  font-size: 13px;
+  color: #444;
+  margin-top: 2px;
+}
+
+/* --- Urgency badges: the "interesting feature" --- */
+.urgency-badge {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: white;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.urgency-ok {
+  background-color: #2e9e4f;
+}
+
+.urgency-soon {
+  background-color: #e0a800;
+  animation: pulse 1.5s infinite;
+}
+
+.urgency-overdue {
+  background-color: #d32f2f;
+  animation: pulse 1s infinite;
+}
+
+.urgency-none {
+  background-color: #888;
+}
+
+.urgency-done {
+  background-color: #607d8b;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* --- Confetti burst on completing a task --- */
+.confetti-burst {
+  position: fixed;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confetti-fly 0.7s ease-out forwards;
+  transform: rotate(var(--angle));
+}
+
+@keyframes confetti-fly {
+  0% {
+    transform: rotate(var(--angle)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--angle)) translateX(60px) scale(0.3);
+    opacity: 0;
   }
 }

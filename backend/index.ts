@@ -1,186 +1,91 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Sample in-memory data store
-let todos: { id: number; todo: string; isDone: boolean }[] = [] 
+const supabase = createClient(
+  process.env.SUPABASE_URL as string,
+  process.env.SUPABASE_KEY as string
+);
 
-// Simple test route
-app.get("/api/todos", (req: Request, res: Response) => {
-  res.json(todos);
+// Shape the frontend expects
+interface Todo {
+  id: number;
+  todo: string;
+  isDone: boolean;
+  deadline: string;
+}
+
+// Map a Supabase row (snake_case) to the frontend's shape (camelCase)
+const toTodo = (row: any): Todo => ({
+  id: row.id,
+  todo: row.todo,
+  isDone: row.is_done,
+  deadline: row.deadline || "",
 });
 
-app.post("/api/todos", (req: Request, res: Response) => {
-  const newTodo = {
-    id: Date.now(),
-    todo: req.body.todo,
-    isDone: false,
-  };
-  todos.push(newTodo);
-  res.json(newTodo);
+// Get all todos
+app.get("/api/todos", async (req: Request, res: Response) => {
+  const { data, error } = await supabase
+    .from("todos")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json((data || []).map(toTodo));
 });
 
-app.delete("/api/todos/:id", (req: Request, res: Response) => {
+// Add a new todo (with a deadline)
+app.post("/api/todos", async (req: Request, res: Response) => {
+  const { data, error } = await supabase
+    .from("todos")
+    .insert({
+      todo: req.body.todo,
+      is_done: false,
+      deadline: req.body.deadline || null,
+    })
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(toTodo(data));
+});
+
+// Delete a todo
+app.delete("/api/todos/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  todos = todos.filter(t => t.id !== id);
+  const { error } = await supabase.from("todos").delete().eq("id", id);
+
+  if (error) return res.status(500).json({ error: error.message });
   res.json({ message: "Todo deleted successfully" });
 });
 
-app.put("/api/todos/:id", (req: Request, res: Response) => {
+// Toggle a todo's completed state
+app.put("/api/todos/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  
-  todos = todos.map(t => {
-    if (t.id === id) {
-      return { ...t, isDone: !t.isDone };
-    }
-    return t;
-  });
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("todos")
+    .select("is_done")
+    .eq("id", id)
+    .single();
+
+  if (fetchError) return res.status(500).json({ error: fetchError.message });
+
+  const { error } = await supabase
+    .from("todos")
+    .update({ is_done: !existing.is_done })
+    .eq("id", id);
+
+  if (error) return res.status(500).json({ error: error.message });
   res.json({ message: "Todo updated successfully" });
 });
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-
-
-
-
-
-
-// import express from 'express'
-//import { searchController, usernameController } from './controller.js'
-//import { userLogin, userSignup } from './controller.js'
-//import router from './route.js'
-// import multer from 'multer'
-// import {storage} from './config/multer.js'
-//import dotenv from 'dotenv';
-
-//dotenv.config();
-
-
-// const app = express()
-// const PORT = 3000
-
-// app.use('/welcome',(req,res,next)=>{
-//     console.log('A new request received at'+Date.now())
-//     next()
-// })
-
-// app.use((req,res,next)=>{
-//     console.log('Start')
-
-//     res.on('finish',()=>{
-//         console.log('End')
-//     })
-
-//     next()
-// })
-
-// app.use(express.urlencoded({extended:true}))
-// app.use(upload.single('image'))
-
-// Define a simple route
-// app.get('/', (req,res)=>{
-//     //console.log('Middle')
-//     res.send('Hello, Express')
-// })
-
-//app.use(express.json());
-
-// Fetch all users
-// app.get('/users', async (req, res) => {
-//   const { data, error } = await supabase.from('users').select('*');
-//   if (error) return res.status(500).json({ error: error.message });
-//   res.json(data);
-// });
-
-// Add a new user
-// app.post('/users', async (req, res) => {
-//   const { name, email } = req.body;
-//   const { data, error } = await supabase.from('users').insert([{ name, email }]);
-//   if (error) return res.status(500).json({ error: error.message });
-//   res.status(201).json(data);
-// });
-
-
-// app.post('/form',(req,res)=>{
-//     console.log(req.body)
-//     console.log(req.file);
-//     res.send('Form Received')
-// })
-
-// app.get('/error',()=>{
-//     throw new Error('This is test error')
-// })
-
-// app.use((err,req,res,next)=>{
-//     console.error(err.message)
-//     res.send('Internal server error')
-// })
-
-// app.get('/welcome', (req,res)=>{
-//      res.send('Welcome to Express')
-// })
-
-// // About route
-// app.get('/about', (req,res)=>{
-//     res.send('This is about route')
-// })
-
-// // About route
-// app.get('/contact', (req,res)=>{
-//     res.send('This is contact route')
-// })
-
-// app.get('/user/:username',usernameController)
-
-// app.get('/search',searchController)
-
-// app.get('/user/login',userLogin)
-// app.get('/user/signup',userSignup)
-
-// app.use('/user',router)
-
-// app.use(express.json())
-
-// app.post('/users', (req,res)=>{
-//     const { name, email } = req.body
-//     res.json({
-//         message: `User ${name} with email ${email} created successfully`
-//     })
-// })
-
-// app.put('/users/:id', (req,res)=>{
-//     const userId = req.params.id
-//     const {name,email} = req.body
-//     res.json({
-//         message:`User ${userId} updated to ${name}, ${email}`
-//     })
-// })
-
-// app.delete('/users/:id', (req,res)=>{
-//     const userId = req.params.id
-//     res.json({
-//         message: `User with ID ${userId} deleted successfully`
-//     })
-// })
-
-// // /users/name/id
-// app.get('/things/:name/:id([0-9]{5})', (req,res)=>{
-//     const {name, id} = req.params
-//     res.json({
-//         id,
-//         name
-//     })
-// })
-
-// // Catch-all invalid routes
-// app.get('*',(req,res)=>{
-//     res,send('Sorry, this is an invalid URL.')
-// })
-
-// app.listen(PORT,()=>{
-//     console.log(`Server is running on http://localhost:${PORT}`)
-// })
