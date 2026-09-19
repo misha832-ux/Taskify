@@ -1,4 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Neucha&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700&display=swap');
+
+:root {
+  --bg: #E4F0FA;
+  --bg-deep: #D3E6F7;
+  --panel: #FFFFFF;
+  --ink: #263447;
+  --ink-soft: #7A8A9C;
+  --accent: #7C6FF0;
+  --accent-dark: #6558D6;
+  --forest: #2FAE83;
+  --amber: #FFA726;
+  --rust: #FF5C5C;
+}
 
 .App {
   width: 100vw;
@@ -6,66 +19,40 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #2f74c0;
-  font-family: "Neucha", cursive;
+  background: var(--bg);
+  font-family: "Quicksand", sans-serif;
+  padding-bottom: 60px;
 }
 
 .heading {
-  text-transform: uppercase;
-  font-size: 40px;
-  margin: 30px 0;
-  color: white;
-  z-index: 1;
+  font-family: "Baloo 2", sans-serif;
+  font-weight: 700;
+  font-size: 42px;
+  margin: 52px 0 34px;
+  color: var(--accent-dark);
   text-align: center;
 }
 
 @media (max-width: 800px) {
   .heading {
-    margin: 15px 0;
-    font-size: 35px;
+    margin: 30px 0 22px;
+    font-size: 32px;
   }
 }
 
-
-/* #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.logout {
+  margin-top: 26px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "Baloo 2", sans-serif;
+  background-color: var(--panel);
+  color: var(--ink-soft);
+  cursor: pointer;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.logout:hover {
+  color: var(--rust);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-} */
