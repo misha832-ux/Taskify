@@ -20,7 +20,7 @@ A full-stack to-do app with deadlines, live urgency indicators, and account-base
 ## Project structure
 
 ```
-Rough-project/
+Taskify/
 ├── frontend/   # React app (Vite)
 └── backend/    # Express API
 ```
