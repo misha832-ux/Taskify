@@ -91,12 +91,6 @@ npm run dev
 
 Open the URL Vite prints (usually `http://localhost:5173`).
 
-## Deployment
-
-- **Frontend:** deploy to [Vercel](https://vercel.com) with root directory `frontend`. Set env vars `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_API_URL` (your deployed backend's URL).
-- **Backend:** deploy to [Render](https://render.com) with root directory `backend`, build command `npm install && npm run build`, start command `npm start`. Set env vars `SUPABASE_URL`, `SUPABASE_KEY`, and `FRONTEND_URL` (your deployed frontend's URL, for CORS).
-- In Supabase → **Authentication → URL Configuration**, add your deployed frontend URL so email confirmation links point to the right place.
-
 ## Notes
 
 - `backend/.env` and `frontend/.env` are gitignored — never commit real Supabase keys.
