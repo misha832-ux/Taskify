@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import './App.css'
 import InputFeild from './component/InputFeild'
@@ -14,6 +14,11 @@ const App: React.FC = () => {
     const [todos, setTodos] = useState<Todo[]>([])
     const [session, setSession] = useState<Session | null>(null)
     const [authLoading, setAuthLoading] = useState(true)
+    const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
+        typeof Notification !== "undefined" ? Notification.permission : "denied"
+    )
+    // Remembers which "soon"/"overdue" alerts already fired, so we don't repeat them every check
+    const notifiedRef = useRef<Set<string>>(new Set())
 
     // Track login state
     useEffect(() => {
@@ -91,6 +96,45 @@ const App: React.FC = () => {
             .then(data => setTodos(data))
     }, [session])
 
+    const requestNotifPermission = async () => {
+        if (typeof Notification === "undefined") return
+        const result = await Notification.requestPermission()
+        setNotifPermission(result)
+    }
+
+    // Checks every 30s for tasks that just became "due soon" or "overdue"
+    // and fires a real browser notification for each, once.
+    useEffect(() => {
+        if (notifPermission !== "granted") return
+
+        const checkDeadlines = () => {
+            const now = Date.now()
+
+            todos.forEach(t => {
+                if (t.isDone || !t.deadline) return
+                const diff = new Date(t.deadline).getTime() - now
+
+                if (diff <= 0) {
+                    const key = `${t.id}-overdue`
+                    if (!notifiedRef.current.has(key)) {
+                        notifiedRef.current.add(key)
+                        new Notification("Task overdue", { body: t.todo })
+                    }
+                } else if (diff <= 24 * 60 * 60 * 1000) {
+                    const key = `${t.id}-soon`
+                    if (!notifiedRef.current.has(key)) {
+                        notifiedRef.current.add(key)
+                        new Notification("Due within 24 hours", { body: t.todo })
+                    }
+                }
+            })
+        }
+
+        checkDeadlines()
+        const interval = setInterval(checkDeadlines, 30000)
+        return () => clearInterval(interval)
+    }, [todos, notifPermission])
+
     if (authLoading) return null
     if (!session) return <Auth />
 
@@ -108,6 +152,11 @@ const App: React.FC = () => {
                 handleAdd={handleAdd}
             />
             <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} />
+            {notifPermission !== "granted" && (
+                <button className="reminders" onClick={requestNotifPermission}>
+                    🔔 Enable deadline reminders
+                </button>
+            )}
             <button className="logout" onClick={handleLogout}>Log out</button>
         </div>
     )
