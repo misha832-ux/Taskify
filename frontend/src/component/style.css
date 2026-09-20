@@ -43,6 +43,16 @@
   background-color: var(--panel);
   color: var(--ink);
   box-shadow: 0 4px 0 var(--bg-deep);
+  color-scheme: light;
+}
+
+.input__deadline::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 4px;
+  border-radius: 6px;
+  background-color: var(--accent);
+  filter: grayscale(1) invert(1);  
 }
 
 .input__deadline:focus {

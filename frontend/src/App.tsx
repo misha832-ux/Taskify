@@ -7,6 +7,10 @@ import TodoList from './component/TodoList'
 import Auth from './component/Auth'
 import { supabase } from './supabaseClient'
 
+// In production, set VITE_API_URL to your deployed backend's URL.
+// Falls back to localhost so local dev keeps working unchanged.
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+
 const App: React.FC = () => {
 
     const [todo, setTodo] = useState<string>("")
@@ -44,10 +48,16 @@ const App: React.FC = () => {
 
         if (todo) {
             try {
-                const res = await fetch("http://localhost:5000/api/todos", {
+                // The datetime-local input gives a naive local time with no timezone
+                // (e.g. "2026-09-20T14:20"). Converting it to an ISO string here
+                // captures it as an explicit UTC instant, so it's stored and
+                // displayed correctly regardless of timezone.
+                const deadlineISO = deadline ? new Date(deadline).toISOString() : ""
+
+                const res = await fetch(`${API_URL}/api/todos`, {
                     method: "POST",
                     headers: authHeaders(),
-                    body: JSON.stringify({ todo, deadline })
+                    body: JSON.stringify({ todo, deadline: deadlineISO })
                 })
                 const newTodo = await res.json()
                 setTodos([...todos, newTodo])
@@ -61,7 +71,7 @@ const App: React.FC = () => {
 
     const handleToggle = async (id: number) => {
         try {
-            await fetch(`http://localhost:5000/api/todos/${id}`, {
+            await fetch(`${API_URL}/api/todos/${id}`, {
                 method: "PUT",
                 headers: authHeaders(),
             })
@@ -73,7 +83,7 @@ const App: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            await fetch(`http://localhost:5000/api/todos/${id}`, {
+            await fetch(`${API_URL}/api/todos/${id}`, {
                 method: "DELETE",
                 headers: authHeaders(),
             })
@@ -91,7 +101,7 @@ const App: React.FC = () => {
     // Fetch todos once we know who's logged in
     useEffect(() => {
         if (!session) return
-        fetch("http://localhost:5000/api/todos", { headers: authHeaders() })
+        fetch(`${API_URL}/api/todos`, { headers: authHeaders() })
             .then(res => res.json())
             .then(data => setTodos(data))
     }, [session])
