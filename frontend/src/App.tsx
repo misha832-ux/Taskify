@@ -97,6 +97,9 @@ const App: React.FC = () => {
     return (
         <div className="App">
             <span className="heading">Taskify</span>
+            {session.user.user_metadata?.full_name && (
+                <span className="greeting">Hi, {session.user.user_metadata.full_name} 👋</span>
+            )}
             <InputFeild
                 todo={todo}
                 setTodo={setTodo}

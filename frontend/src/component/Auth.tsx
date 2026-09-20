@@ -4,6 +4,7 @@ import "./auth.css"
 
 const Auth: React.FC = () => {
     const [mode, setMode] = useState<"login" | "signup">("login")
+    const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
@@ -20,7 +21,11 @@ const Auth: React.FC = () => {
             const { error } = await supabase.auth.signInWithPassword({ email, password })
             if (error) setError(error.message)
         } else {
-            const { error } = await supabase.auth.signUp({ email, password })
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { data: { full_name: name } },
+            })
             if (error) {
                 setError(error.message)
             } else {
@@ -40,6 +45,16 @@ const Auth: React.FC = () => {
                 </p>
 
                 <form onSubmit={handleSubmit} className="auth__form">
+                    {mode === "signup" && (
+                        <input
+                            type="text"
+                            placeholder="Name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                            className="auth__input"
+                        />
+                    )}
                     <input
                         type="email"
                         placeholder="Email"
@@ -73,6 +88,7 @@ const Auth: React.FC = () => {
                             setMode(mode === "login" ? "signup" : "login")
                             setError("")
                             setMessage("")
+                            setName("")
                         }}
                     >
                         {mode === "login" ? "Sign up" : "Log in"}
